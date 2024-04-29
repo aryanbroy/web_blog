@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 import { Alert, Button, Label, Spinner, TextInput } from "flowbite-react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -27,23 +28,36 @@ export default function SignIn() {
     }
     try {
       dispatch(signInStart());
-      const res = await fetch("http://localhost:3000/api/auth/signin", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-      const data = await res.json();
+      // const res = await fetch(
+      //   "http://localhost:3000/api/auth/signin",
+      //   {
+      //     method: "POST",
+      //     headers: {
+      //       "Content-Type": "application/json",
+      //     },
+      //     body: JSON.stringify(formData),
+      //   },
+      //   { credentials: "include" }
+      // );
+      // const data = await res.json();
+      const res = await axios.post(
+        "http://localhost:3000/api/auth/signin",
+        formData,
+        { withCredentials: true }
+      );
+      const data = await res.data;
       if (data.success === false) {
         dispatch(signInFailure(data.message));
         return;
       }
 
-      if (res.ok) {
-        dispatch(signInSuccess(data));
-        navigate("/");
-      }
+      // if (res.ok) {
+      //   dispatch(signInSuccess(data));
+      //   navigate("/");
+      // }
+      console.log(data);
+      dispatch(signInSuccess(data));
+      navigate("/");
     } catch (error) {
       dispatch(signInFailure(error.message));
     }
@@ -102,7 +116,7 @@ export default function SignIn() {
           </div>
           {errorMessage && (
             <Alert className="mt-5" color="failure">
-              {errorMessage}
+              No such user exist!
             </Alert>
           )}
         </div>
