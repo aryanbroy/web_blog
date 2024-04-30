@@ -45,6 +45,18 @@ export default function DashPosts() {
       console.log(error);
     }
   };
+
+  const handleDelete = async (id) => {
+    try {
+      const res = await axios.delete(
+        `http://localhost:3000/api/post/deletepost/${id}/${currentUser._id}`,
+        { withCredentials: true }
+      );
+      setPosts(posts.filter((post) => post._id !== id));
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <div className="table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300 dark:scrollbar-track-slate-700 dark:scrollbar-thumb-slate-500">
       {currentUser.isAdmin && posts.length > 0 ? (
@@ -88,7 +100,10 @@ export default function DashPosts() {
                       post.category.slice(1)}
                   </Table.Cell>
                   <Table.Cell>
-                    <span className="font-medium text-red-500 hover:underline cursor-pointer">
+                    <span
+                      className="font-medium text-red-500 hover:underline cursor-pointer"
+                      onClick={() => handleDelete(post._id)}
+                    >
                       Delete
                     </span>
                   </Table.Cell>
