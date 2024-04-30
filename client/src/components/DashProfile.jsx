@@ -16,6 +16,7 @@ import {
   deleteUserFailure,
   deleteUserStart,
   deleteUserSuccess,
+  signOutUserSuccess,
   updateUserFailure,
   updateUserStart,
   updateUserSuccess,
@@ -33,6 +34,7 @@ export default function DashProfile() {
   const [updateUserError, setUpdateUserError] = useState(null);
   const [imageFileUploading, setImageFileUploading] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [signOutError, setSignOutError] = useState(null);
   const navigate = useNavigate();
   const fileRef = useRef();
   const handleImageChange = (e) => {
@@ -125,6 +127,17 @@ export default function DashProfile() {
       navigate("/sign-in");
     } catch (error) {
       dispatch(deleteUserFailure(error.message));
+    }
+  };
+
+  const handleSignOut = async () => {
+    setSignOutError(null);
+    try {
+      const res = await axios.post("http://localhost:3000/api/user/signout");
+      dispatch(signOutUserSuccess());
+      navigate("/sign-in");
+    } catch (error) {
+      setSignOutError(error.message);
     }
   };
 
@@ -223,8 +236,15 @@ export default function DashProfile() {
         <span onClick={() => setShowModal(true)} className="cursor-pointer">
           Delete Account
         </span>
-        <span className="cursor-pointer">Sign Out</span>
+        <span onClick={handleSignOut} className="cursor-pointer">
+          Sign Out
+        </span>
       </div>
+      {signOutError && (
+        <Alert className="mt-5" color="failure">
+          Error occurred while signing you out
+        </Alert>
+      )}
       <Modal
         show={showModal}
         onClose={() => setShowModal(false)}

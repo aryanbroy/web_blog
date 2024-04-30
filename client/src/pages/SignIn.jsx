@@ -55,7 +55,6 @@ export default function SignIn() {
       //   dispatch(signInSuccess(data));
       //   navigate("/");
       // }
-      console.log(data);
       dispatch(signInSuccess(data));
       navigate("/");
     } catch (error) {

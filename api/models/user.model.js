@@ -23,6 +23,10 @@ const userSchema = new Schema(
       default:
         "https://www.gravatar.com/avatar/d88687cca589a5d5e8b17ad06289d41c?size=192&d=mm",
     },
+    isAdmin: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
