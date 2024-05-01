@@ -24,14 +24,10 @@ export default function SignUp() {
         },
         body: JSON.stringify(formData),
       });
-      // if (!res.ok) {
-      //   setError(true);
-      //   setLoading(false);
-      //   return;
-      // }
       const data = await res.json();
       if (data.success === false) {
         setErrorMessage(data.message);
+        setLoading(false);
         return;
       }
       setLoading(false);

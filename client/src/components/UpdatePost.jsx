@@ -107,6 +107,7 @@ export default function UpdatePost() {
       const data = await res.data;
       setFormData({ ...formData, data });
       setUpdating(false);
+      navigate(`/post/${data.slug}`);
     } catch (error) {
       setUpdating(false);
       setPublishError("Could not update post");
@@ -188,9 +189,7 @@ export default function UpdatePost() {
         <Button
           type="submit"
           gradientDuoTone={"purpleToPink"}
-          disabled={
-            imageUploading || updating || !formData.title || !formData.content
-          }
+          disabled={imageUploading || updating}
         >
           Update
         </Button>
