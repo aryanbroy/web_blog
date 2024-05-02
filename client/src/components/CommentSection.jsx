@@ -49,6 +49,34 @@ export default function CommentSection({ postId }) {
     };
     fetchComments();
   }, [postId]);
+
+  const handleLike = async (commentId) => {
+    try {
+      const res = await fetch(
+        "http://localhost:3000/api/comment/likeComment/" + commentId,
+        {
+          method: "PUT",
+          credentials: "include",
+        }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        setComments(
+          comments.map((comment) =>
+            comment._id === commentId
+              ? {
+                  ...comment,
+                  likes: data.likes,
+                  numberOfLikes: data.likes.length,
+                }
+              : comment
+          )
+        );
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <div className="max-w-2xl mx-auto w-full p-3">
       {currentUser ? (
@@ -110,7 +138,7 @@ export default function CommentSection({ postId }) {
             </div>
           </div>
           {comments.map((comment) => (
-            <Comment key={comment._id} comment={comment} />
+            <Comment key={comment._id} comment={comment} onLike={handleLike} />
           ))}
         </>
       ) : (

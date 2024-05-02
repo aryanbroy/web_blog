@@ -2,10 +2,11 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import moment from "moment";
 import { FaThumbsUp } from "react-icons/fa";
+import { useSelector } from "react-redux";
 
-export default function Comment({ comment }) {
+export default function Comment({ comment, onLike }) {
   const [userData, setUserData] = useState({});
-  const [isLike, setIsLike] = useState(false);
+  const { currentUser } = useSelector((state) => state.user);
   useEffect(() => {
     const getUser = async () => {
       try {
@@ -39,6 +40,25 @@ export default function Comment({ comment }) {
           </span>
         </div>
         <p className="pb-2">{comment.content}</p>
+        <div className="flex items-center pt-2 text-xs border-t dark:border-gray-700 max-w-fit gap-2">
+          <button
+            type="button"
+            className={`text-gray-400 hover:text-blue-500 ${
+              currentUser &&
+              comment.likes.includes(currentUser._id) &&
+              "!text-blue-500"
+            }`}
+            onClick={() => onLike(comment._id)}
+          >
+            <FaThumbsUp className="text-sm" />
+          </button>
+          {comment.likes.length > 0 && (
+            <span>
+              {comment.likes.length}{" "}
+              {comment.likes.length === 1 ? "like" : "likes"}
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );
