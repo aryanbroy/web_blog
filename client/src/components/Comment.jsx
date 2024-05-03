@@ -5,11 +5,12 @@ import { FaThumbsUp } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { Button, Textarea } from "flowbite-react";
 
-export default function Comment({ comment, onLike }) {
+export default function Comment({ comment, onLike, onSave, onDelete }) {
   const [userData, setUserData] = useState({});
   const { currentUser } = useSelector((state) => state.user);
   const [isEditing, setIsEditing] = useState(false);
   const [editingContent, setEditingContent] = useState("");
+  const [saving, setSaving] = useState(false);
   useEffect(() => {
     const getUser = async () => {
       try {
@@ -28,6 +29,33 @@ export default function Comment({ comment, onLike }) {
   const handleEdit = () => {
     setIsEditing(true);
     setEditingContent(comment.content);
+  };
+
+  const handleSave = async (commentId, content) => {
+    try {
+      setSaving(true);
+      const res = await fetch(
+        "http://localhost:3000/api/comment/editComment/" + commentId,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ content }),
+        }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        onSave(data);
+      }
+      setIsEditing(false);
+      setSaving(false);
+    } catch (error) {
+      setSaving(false);
+      setIsEditing(false);
+      console.log(error);
+    }
   };
 
   return (
@@ -56,7 +84,13 @@ export default function Comment({ comment, onLike }) {
               onChange={(e) => setEditingContent(e.target.value)}
             />
             <div className="flex justify-end gap-2 text-xs">
-              <Button type="button" size={"sm"} gradientDuoTone="purpleToBlue">
+              <Button
+                type="button"
+                size={"sm"}
+                gradientDuoTone="purpleToBlue"
+                onClick={() => handleSave(comment._id, editingContent)}
+                disabled={saving}
+              >
                 Save
               </Button>
               <Button
@@ -100,6 +134,14 @@ export default function Comment({ comment, onLike }) {
                       onClick={handleEdit}
                     >
                       Edit
+                    </button>
+                    <button
+                      type="button"
+                      className="text-gray-400 hover:text-red-500"
+                      // onClick={() => handleDelete(comment._id)}
+                      onClick={() => onDelete(comment._id)}
+                    >
+                      Delete
                     </button>
                   </>
                 )}
