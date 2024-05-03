@@ -103,3 +103,15 @@ export const updatePost = async (req, res, next) => {
     next(error);
   }
 };
+
+export const getRecentPosts = async (req, res, next) => {
+  try {
+    const numberOfPosts = await Post.countDocuments();
+    const limit = 3;
+    if (numberOfPosts < 3) {
+      limit = numberOfPosts;
+    }
+    const posts = await Post.find().sort({ createdAt: -1 }).limit(limit);
+    res.status(200).json(posts);
+  } catch (error) {}
+};
