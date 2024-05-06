@@ -5,22 +5,25 @@ import { Button, Modal, Table } from "flowbite-react";
 import { FaCheck, FaTimes } from "react-icons/fa";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 
-export default function DashUsers() {
+export default function DashComments() {
   const { currentUser } = useSelector((state) => state.user);
-  const [users, setUsers] = useState([]);
+  const [comments, setComments] = useState([]);
   const [showMore, setShowMore] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [userId, setUserId] = useState(null);
+  const [commentId, setCommentId] = useState(null);
 
   useEffect(() => {
     const fetUsers = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/api/user/getUsers", {
-          withCredentials: true,
-        });
-        const data = await res.data;
-        setUsers(data.users);
-        if (data.users.length < 9) {
+        const res = await axios.get(
+          "http://localhost:3000/api/comment/getComments",
+          {
+            withCredentials: true,
+          }
+        );
+        const data = res.data;
+        setComments(data.comments);
+        if (data.comments.length < 9) {
           setShowMore(false);
         }
       } catch (error) {
@@ -33,15 +36,15 @@ export default function DashUsers() {
   }, [currentUser._id]);
 
   const handleShowMore = async () => {
-    const startIndex = users.length;
+    const startIndex = comments.length;
     try {
       const res = await axios.get(
-        `http://localhost:3000/api/user/getUsers?startIndex=${startIndex}`,
+        `http://localhost:3000/api/comment/getComments?startIndex=${startIndex}`,
         { withCredentials: true }
       );
       const data = res.data;
-      setUsers((prevUsers) => [...prevUsers, ...data.users]);
-      if (data.users.length < 9) {
+      setComments((prevComments) => [...prevComments, ...data.users]);
+      if (data.comments.length < 9) {
         setShowMore(false);
       }
     } catch (error) {
@@ -49,60 +52,49 @@ export default function DashUsers() {
     }
   };
 
-  const handleDeleteUser = async () => {
+  const handleDelete = async () => {
     try {
       const res = await axios.delete(
-        "http://localhost:3000/api/user/delete/" + userId,
+        "http://localhost:3000/api/comment/deleteComment/" + commentId,
         { withCredentials: true }
       );
       const data = res.data;
-      setUsers(users.filter((user) => user._id !== userId));
+      setComments(comments.filter((comment) => comment._id !== commentId));
       setShowModal(false);
     } catch (error) {
-      console.log(error);
+      console.log(error.message);
     }
   };
   return (
     <div className="table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300 dark:scrollbar-track-slate-700 dark:scrollbar-thumb-slate-500">
-      {currentUser.isAdmin && users.length > 0 ? (
+      {currentUser.isAdmin && comments.length > 0 ? (
         <>
           <Table hoverable className="shadow-md">
             <Table.Head>
               <Table.HeadCell>Date created</Table.HeadCell>
-              <Table.HeadCell>User image</Table.HeadCell>
-              <Table.HeadCell>Username</Table.HeadCell>
-              <Table.HeadCell>Email</Table.HeadCell>
-              <Table.HeadCell>Admin</Table.HeadCell>
+              <Table.HeadCell>Comment Content</Table.HeadCell>
+              <Table.HeadCell>Number of likes</Table.HeadCell>
+              <Table.HeadCell>Postid</Table.HeadCell>
+              <Table.HeadCell>Userid</Table.HeadCell>
               <Table.HeadCell>Delete</Table.HeadCell>
             </Table.Head>
-            {users.map((user) => (
-              <Table.Body className="divide-y" key={user._id}>
+            {comments.map((comment) => (
+              <Table.Body className="divide-y" key={comment._id}>
                 <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
                   <Table.Cell>
-                    {new Date(user.updatedAt).toLocaleDateString()}
+                    {new Date(comment.updatedAt).toLocaleDateString()}
                   </Table.Cell>
-                  <Table.Cell>
-                    <img
-                      src={user.photo}
-                      alt={user.username}
-                      className="w-20 h-10 object-cover bg-gray-500"
-                    />
-                  </Table.Cell>
-                  <Table.Cell>{user.username}</Table.Cell>
-                  <Table.Cell>{user.email}</Table.Cell>
-                  <Table.Cell>
-                    {user.isAdmin ? (
-                      <FaCheck className="text-green-500" />
-                    ) : (
-                      <FaTimes className="text-red-500" />
-                    )}
-                  </Table.Cell>
+
+                  <Table.Cell>{comment.content}</Table.Cell>
+                  <Table.Cell>{comment.numberOfLikes}</Table.Cell>
+                  <Table.Cell>{comment.postId}</Table.Cell>
+                  <Table.Cell>{comment.userId}</Table.Cell>
                   <Table.Cell>
                     <span
                       className="font-medium text-red-500 hover:underline cursor-pointer"
                       onClick={() => {
                         setShowModal(true);
-                        setUserId(user._id);
+                        setCommentId(comment._id);
                       }}
                     >
                       Delete
@@ -138,7 +130,7 @@ export default function DashUsers() {
               Are you sure you want to delete this user?
             </h3>
             <div className="flex justify-center gap-4">
-              <Button color="failure" onClick={handleDeleteUser}>
+              <Button color="failure" onClick={handleDelete}>
                 Yes, I'm sure
               </Button>
               <Button color="gray" onClick={() => setShowModal(false)}>
